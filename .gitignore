@@ -17,6 +17,8 @@ yarn-error.log
 .classpath
 .c9/
 *.launch
+*.log
+.env
 .settings/
 *.sublime-workspace
 
@@ -30,6 +32,7 @@ yarn-error.log
 
 # Miscellaneous
 /.angular/cache
+/.angular
 .sass-cache/
 /connect.lock
 /coverage

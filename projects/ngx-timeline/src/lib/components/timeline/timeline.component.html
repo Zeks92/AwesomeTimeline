@@ -1,0 +1,35 @@
+<div class="timeline-container">
+  <div class="user-column">
+    <div class="user-cell user-header">Users</div>
+    <div class="user-cell" *ngFor="let user of users">
+      {{ user.name }}
+    </div>
+  </div>
+
+  <div class="timeline-scroll">
+    <div class="timeline-scroll-inner">
+      <div class="timeline-header">
+        <div class="time-cell" *ngFor="let hour of [].constructor(24); let i = index">
+          {{ i }}:00
+        </div>
+      </div>
+
+      <div class="timeline-rows">
+        <div class="timeline-row" *ngFor="let user of users">
+          <div class="time-cell" *ngFor="let hour of [].constructor(24); let h = index">
+            <ng-container *ngFor="let item of getItemsForUser(user.id)">
+              <div
+                class="timeline-item"
+                *ngIf="getHour(item.start) === h"
+                [style.background]="item.color || '#2196f3'"
+                [title]="item.title"
+              >
+                {{ item.title }}
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
