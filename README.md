@@ -30,6 +30,5 @@ It is designed for applications that require user-centric time visualization, da
 5. **Open your browser at**:
     http://localhost:4200
 
-🌐 Live Demo:
-🖥️ Coming soon at:
+🌐 Live Demo: https://awesome-timeline.netlify.app/
 
