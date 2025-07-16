@@ -15,6 +15,8 @@ export class AppComponent {
   users: TimelineUser[] = [
     { id: 'u1', name: 'Ana' },
     { id: 'u2', name: 'Marko' },
+    { id: 'u3', name: 'Dejan'},
+    { id: 'u4', name: 'Dragana'}
   ];
 
   items: TimelineItem[] = [
@@ -26,6 +28,14 @@ export class AppComponent {
       end: new Date('2025-07-09T09:00:00'),
       color: '#4caf50',
     },
+        {
+      id: 't1',
+      userId: 'u1',
+      title: 'Meeting 2',
+      start: new Date('2025-07-09T10:00:00'),
+      end: new Date('2025-07-09T11:00:00'),
+      color: '#4caf50',
+    },
     {
       id: 't2',
       userId: 'u2',
@@ -33,5 +43,19 @@ export class AppComponent {
       start: new Date('2025-07-09T10:00:00'),
       end: new Date('2025-07-09T11:30:00'),
     },
+    {
+      id: 't3',
+      userId: 'u3',
+      title: 'Daily standup',
+      start: new Date('2025-07-09T12:00:00'),
+      end: new Date('2025-07-09T12:30:00'),
+    },
+        {
+      id: 't4',
+      userId: 'u4',
+      title: 'BE sync',
+      start: new Date('2025-07-10T14:00:00'),
+      end: new Date('2025-07-10T15:00:00'),
+    }
   ];
 }

@@ -1,0 +1,7 @@
+<div class="tooltip-container" *ngIf="items?.length">
+  <div class="tooltip-item" *ngFor="let item of items">
+    <strong>{{ item.title }}</strong><br />
+    <span>Start: {{ formatTime(item.start) }}</span><br />
+    <span>End: {{ formatTime(item.end) }}</span>
+  </div>
+</div>
