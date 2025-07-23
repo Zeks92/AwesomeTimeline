@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { TimelineUser, TimelineItem } from '../../models/timeline.model';
+import { TimelineUser, TimelineItem, GroupedTimelineItem } from '../../models/timeline.model';
 
 @Component({
   selector: 'ngx-timeline',
@@ -9,10 +9,12 @@ import { TimelineUser, TimelineItem } from '../../models/timeline.model';
 export class TimelineComponent implements OnInit {
   @Input() users: TimelineUser[] = [];
   @Input() items: TimelineItem[] = [];
-  @Input() viewMode: 'day' | 'week' | 'month' = 'day';
+  @Input() viewMode: 'day' | 'week' = 'day';
 
   viewColumns: (number | string)[] = [];
-  showTooltip: string | null = null;
+  activeTooltipItem: TimelineItem | null = null;
+  activeGroupTooltipId: string | null = null;
+  activeUserWithTooltip: string | null = null;
 
   ngOnInit(): void {
     this.generateColumns();
@@ -38,6 +40,12 @@ export class TimelineComponent implements OnInit {
       : '2400px';
   }
 
+    private getStartOfDay(date: Date): Date {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
   isLastUser(index: number): boolean {
     return index === this.users.length - 1;
   }
@@ -45,6 +53,39 @@ export class TimelineComponent implements OnInit {
   getWeekDayIndex(date: Date): number {
     const jsDay = new Date(date).getDay();
     return jsDay === 0 ? 6 : jsDay - 1;
+  }
+    getGroupedItemsForUserAndDay(userId: string, dayIndex: number): GroupedTimelineItem | null {
+    if (this.viewMode !== 'week') return null;
+
+    const itemsForUser = this.items.filter(item => item.userId === userId);
+    let referenceDateForWeek: Date;
+    if (this.items && this.items.length > 0) {
+      referenceDateForWeek = new Date(this.items[0].start);
+    } else {
+      referenceDateForWeek = new Date();
+    }
+
+    const startOfWeek = new Date(this.getStartOfDay(referenceDateForWeek));
+    startOfWeek.setDate(startOfWeek.getDate() - this.getWeekDayIndex(startOfWeek));
+
+    const targetDay = new Date(startOfWeek);
+    targetDay.setDate(startOfWeek.getDate() + dayIndex);
+
+    const itemsForTargetDay = itemsForUser.filter(item => {
+      const itemDay = this.getStartOfDay(item.start);
+      return itemDay.getTime() === targetDay.getTime();
+    });
+
+    if (itemsForTargetDay.length > 0) {
+      itemsForTargetDay.sort((a, b) => a.start.getTime() - b.start.getTime());
+      return {
+        date: targetDay,
+        items: itemsForTargetDay,
+        count: itemsForTargetDay.length,
+        id: `${userId}-${targetDay.toISOString().split('T')[0]}`
+      };
+    }
+    return null;
   }
 
   getItemsForCell(userId: string, cellIndex: number): TimelineItem[] {
@@ -69,6 +110,42 @@ export class TimelineComponent implements OnInit {
   }
 
   getItemsForUser(userId: string): TimelineItem[] {
-    return this.items.filter((item) => item.userId === userId);
+    if (this.viewMode === 'day') {
+      return this.items.filter((item) => item.userId === userId);
+    }
+    return [];
+  }
+
+  getItemLeftOffset(item: TimelineItem): number {
+    if (this.viewMode === 'day') {
+      const hour = item.start.getHours();
+      const minutes = item.start.getMinutes();
+      const cellWidth = 100;
+      return (hour * cellWidth) + (minutes / 60) * cellWidth;
+    }
+    return 0;
+  }
+
+  getItemWidth(item: TimelineItem): number {
+    if (this.viewMode === 'day') {
+      const start = item.start.getTime();
+      const end = item.end.getTime();
+      const durationMinutes = (end - start) / (1000 * 60);
+      const cellWidth = 100;
+      return (durationMinutes / 60) * cellWidth;
+    }
+    return 100;
+  }
+
+  getWeekItemLeftOffset(dayIndex: number): number {
+    const cellWidth = 100;
+    return dayIndex * cellWidth;
+  }
+
+    getTimelineRowZIndex(userId: string): number {
+    if (this.activeUserWithTooltip === userId) {
+      return 10000;
+    }
+    return 1;
   }
 }

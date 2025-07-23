@@ -12,3 +12,9 @@ export interface TimelineItem {
   end: Date;
   color?: string;
 }
+export interface GroupedTimelineItem {
+  date: Date;
+  items: TimelineItem[];
+  count: number;
+  id: string;
+}

@@ -1,11 +1,8 @@
 <div class="timeline-container">
   <div class="user-column">
     <div class="user-cell user-header">Users</div>
-    <div class="user-cell" *ngFor="let user of users">
-      {{ user.name }}
-    </div>
+    <div class="user-cell" *ngFor="let user of users">{{ user.name }}</div>
   </div>
-
   <div class="timeline-scroll">
     <div class="timeline-scroll-inner" [style.min-width]="getInnerWidth()">
       <div class="timeline-header">
@@ -13,44 +10,77 @@
           {{ column }}<span *ngIf="viewMode === 'day'">:00</span>
         </div>
       </div>
-
       <div class="timeline-rows">
         <div
           class="timeline-row"
           *ngFor="let user of users; let userIndex = index"
+          [style.z-index]="getTimelineRowZIndex(user.id)"
         >
-          <div
-            class="time-cell"
-            *ngFor="let column of viewColumns; let h = index"
-          >
-            <ng-container *ngIf="getItemsForCell(user.id, h).length > 0">
+          <div class="time-cell" *ngFor="let column of viewColumns"></div>
+
+          <ng-container *ngIf="viewMode === 'day'">
+            <ng-container *ngFor="let item of getItemsForUser(user.id)">
               <div
                 class="timeline-item-wrapper"
-                (mouseenter)="showTooltip = h + '-' + user.id"
-                (mouseleave)="showTooltip = null"
+                (mouseenter)="
+                  activeTooltipItem = item; activeUserWithTooltip = item.userId
+                "
+                (mouseleave)="
+                  activeTooltipItem = null; activeUserWithTooltip = null
+                "
+                [style.left.px]="getItemLeftOffset(item)"
+                [style.width.px]="getItemWidth(item)"
               >
                 <div
                   class="timeline-item"
-                  [style.background]="
-                    getItemsForCell(user.id, h)[0].color || '#2196f3'
-                  "
+                  [style.background]="item.color || '#2196f3'"
                 >
-                  {{
-                    getItemsForCell(user.id, h).length === 1
-                      ? getItemsForCell(user.id, h)[0].title
-                      : getItemsForCell(user.id, h).length + " Meetings"
-                  }}
+                  {{ item.title }}
                 </div>
-
                 <ngx-timeline-tooltip
-                  *ngIf="showTooltip === h + '-' + user.id"
+                  *ngIf="activeTooltipItem === item"
                   class="tooltip-floating"
                   [class.tooltip-top]="isLastUser(userIndex)"
-                  [items]="getItemsForCell(user.id, h)"
+                  [items]="[item]"
                 ></ngx-timeline-tooltip>
               </div>
             </ng-container>
-          </div>
+          </ng-container>
+
+          <ng-container *ngIf="viewMode === 'week'">
+            <ng-container *ngFor="let column of viewColumns; let h = index">
+              <ng-container
+                *ngIf="getGroupedItemsForUserAndDay(user.id, h) as groupedItem"
+              >
+                <div
+                  class="timeline-item-wrapper"
+                  [style.left.px]="getWeekItemLeftOffset(h)"
+                  [style.width.px]="100"
+                  (mouseenter)="
+                    activeGroupTooltipId = groupedItem.id;
+                    activeUserWithTooltip = user.id
+                  "
+                  (mouseleave)="
+                    activeGroupTooltipId = null; activeUserWithTooltip = null
+                  "
+                >
+                  <div
+                    class="timeline-item"
+                    [style.background]="groupedItem.items[0].color || '#2196f3'"
+                  >
+                    {{ groupedItem.count }}
+                    {{ groupedItem.count === 1 ? "Meeting" : "Meetings" }}
+                  </div>
+                  <ngx-timeline-tooltip
+                    *ngIf="activeGroupTooltipId === groupedItem.id"
+                    class="tooltip-floating"
+                    [class.tooltip-top]="isLastUser(userIndex)"
+                    [items]="groupedItem.items"
+                  ></ngx-timeline-tooltip>
+                </div>
+              </ng-container>
+            </ng-container>
+          </ng-container>
         </div>
       </div>
     </div>
