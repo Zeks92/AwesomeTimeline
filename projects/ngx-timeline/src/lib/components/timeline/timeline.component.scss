@@ -112,12 +112,46 @@
   padding: 2px 4px;
   border-radius: 4px;
   white-space: nowrap;
-  overflow: visible;
+  overflow: hidden;
   text-overflow: ellipsis;
-  width: 90%;
+  width: 100%;
   text-align: center;
   z-index: 1;
   position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.resize-handle {
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 100%;
+  cursor: ew-resize;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.timeline-item-wrapper:hover .resize-handle {
+  opacity: 1;
+}
+
+
+.resize-handle.left {
+  left: 0;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.resize-handle.right {
+  right: 0;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .timeline-item-wrapper {

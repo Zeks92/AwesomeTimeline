@@ -76,8 +76,8 @@ export class AppComponent {
       id: 't53',
       userId: 'u5',
       title: 'Leads sync',
-      start: new Date('2025-07-11T14:00:00'),
-      end: new Date('2025-07-11T15:00:00'),
+      start: new Date('2025-07-09T14:00:00'),
+      end: new Date('2025-07-09T15:00:00'),
     },
 
   ];

@@ -36,6 +36,8 @@
                   [style.background]="item.color || '#2196f3'"
                 >
                   {{ item.title }}
+                  <div class="resize-handle left" (mousedown)="onDragStart($event, item, 'left')"></div>
+                  <div class="resize-handle right" (mousedown)="onDragStart($event, item, 'right')"></div>
                 </div>
                 <ngx-timeline-tooltip
                   *ngIf="activeTooltipItem === item"
