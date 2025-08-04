@@ -14,6 +14,7 @@ export class TimelineComponent implements OnInit {
   @Input() users: TimelineUser[] = [];
   @Input() items: TimelineItem[] = [];
   @Input() viewMode: 'day' | 'week' = 'day';
+  @Input() selectedDate: Date = new Date();
 
   viewColumns: (number | string)[] = [];
   activeTooltipItem: TimelineItem | null = null;
@@ -27,9 +28,11 @@ export class TimelineComponent implements OnInit {
   originalItemLeftOffset: number = 0;
   originalItemWidth: number = 0;
   originalDraggingItemState: TimelineItem | null = null;
+  selectedDateStartOfDay: Date = new Date();
 
   ngOnInit(): void {
     this.generateColumns();
+    this.selectedDateStartOfDay = this.getStartOfDay(this.selectedDate);
   }
 
   ngOnChanges(): void {
@@ -128,7 +131,13 @@ export class TimelineComponent implements OnInit {
 
   getItemsForUser(userId: string): TimelineItem[] {
     if (this.viewMode === 'day') {
-      return this.items.filter((item) => item.userId === userId);
+      return this.items.filter((item) => {
+        const isSameUser = item.userId === userId;
+        const isSameDay =
+          this.getStartOfDay(item.start).getTime() ===
+          this.selectedDateStartOfDay.getTime();
+        return isSameUser && isSameDay;
+      });
     }
     return [];
   }
@@ -236,10 +245,12 @@ export class TimelineComponent implements OnInit {
     const newEndHour = Math.floor(newEndMinutesFromMidnight / 60);
     const newEndMinute = Math.round(newEndMinutesFromMidnight % 60);
 
-    const newStartDate = new Date(this.originalStartTime);
+    const newStartDate = new Date(this.selectedDateStartOfDay);
+    newStartDate.setHours(newStartHour, newStartMinute, 0, 0);
     newStartDate.setHours(newStartHour, newStartMinute, 0, 0);
 
-    const newEndDate = new Date(this.originalEndTime);
+    const newEndDate = new Date(this.selectedDateStartOfDay);
+    newEndDate.setHours(newEndHour, newEndMinute, 0, 0);
     newEndDate.setHours(newEndHour, newEndMinute, 0, 0);
     if (
       newEndDate.getTime() <
@@ -323,5 +334,15 @@ export class TimelineComponent implements OnInit {
 
   get _pixelsPerMinute(): number {
     return 100 / 60;
+  }
+
+  getFormattedDate(date: Date): string {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    };
+    return date.toLocaleDateString('en-US', options);
   }
 }

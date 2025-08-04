@@ -1,40 +1,54 @@
 <div class="timeline-container">
   <div class="user-column">
-    <div class="user-cell user-header">Users</div>
+    <ng-container *ngIf="viewMode === 'day'">
+      <div class="user-cell-header date-row-placeholder"></div>
+      <div class="user-cell-header time-row-placeholder">Users</div>
+    </ng-container>
+    <div class="user-cell-header single-header-placeholder" *ngIf="viewMode === 'week'">
+      Users
+    </div>
     <div class="user-cell" *ngFor="let user of users">{{ user.name }}</div>
   </div>
+
   <div class="timeline-scroll">
     <div class="timeline-scroll-inner" [style.min-width]="getInnerWidth()">
-      <div class="timeline-header">
-        <div class="time-cell" *ngFor="let column of viewColumns">
-          {{ column }}<span *ngIf="viewMode === 'day'">:00</span>
+      <ng-container *ngIf="viewMode === 'day'">
+        <div class="timeline-header-date-row">
+          <div class="date-cell" [style.width]="getInnerWidth()">
+            {{ getFormattedDate(selectedDate) }}
+          </div>
+        </div>
+        <div class="timeline-header-time-row">
+          <div class="time-cell-header" *ngFor="let column of viewColumns">
+            {{ column }}:00
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="timeline-header" *ngIf="viewMode === 'week'">
+        <div class="time-cell-header" *ngFor="let column of viewColumns">
+          {{ column }}
         </div>
       </div>
+
       <div class="timeline-rows">
         <div
           class="timeline-row"
           *ngFor="let user of users; let userIndex = index"
           [style.z-index]="getTimelineRowZIndex(user.id)"
         >
-          <div class="time-cell" *ngFor="let column of viewColumns"></div>
+          <div class="time-cell-grid" *ngFor="let column of viewColumns"></div>
 
           <ng-container *ngIf="viewMode === 'day'">
             <ng-container *ngFor="let item of getItemsForUser(user.id)">
               <div
                 class="timeline-item-wrapper"
-                (mouseenter)="
-                  activeTooltipItem = item; activeUserWithTooltip = item.userId
-                "
-                (mouseleave)="
-                  activeTooltipItem = null; activeUserWithTooltip = null
-                "
+                (mouseenter)="activeTooltipItem = item; activeUserWithTooltip = item.userId"
+                (mouseleave)="activeTooltipItem = null; activeUserWithTooltip = null"
                 [style.left.px]="getItemLeftOffset(item)"
                 [style.width.px]="getItemWidth(item)"
               >
-                <div
-                  class="timeline-item"
-                  [style.background]="item.color || '#2196f3'"
-                >
+                <div class="timeline-item" [style.background]="item.color || '#2196f3'">
                   {{ item.title }}
                   <div class="resize-handle left" (mousedown)="onDragStart($event, item, 'left')"></div>
                   <div class="resize-handle right" (mousedown)="onDragStart($event, item, 'right')"></div>
@@ -58,18 +72,10 @@
                   class="timeline-item-wrapper"
                   [style.left.px]="getWeekItemLeftOffset(h)"
                   [style.width.px]="100"
-                  (mouseenter)="
-                    activeGroupTooltipId = groupedItem.id;
-                    activeUserWithTooltip = user.id
-                  "
-                  (mouseleave)="
-                    activeGroupTooltipId = null; activeUserWithTooltip = null
-                  "
+                  (mouseenter)="activeGroupTooltipId = groupedItem.id; activeUserWithTooltip = user.id"
+                  (mouseleave)="activeGroupTooltipId = null; activeUserWithTooltip = null"
                 >
-                  <div
-                    class="timeline-item"
-                    [style.background]="groupedItem.items[0].color || '#2196f3'"
-                  >
+                  <div class="timeline-item" [style.background]="groupedItem.items[0].color || '#2196f3'">
                     {{ groupedItem.count }}
                     {{ groupedItem.count === 1 ? "Meeting" : "Meetings" }}
                   </div>
