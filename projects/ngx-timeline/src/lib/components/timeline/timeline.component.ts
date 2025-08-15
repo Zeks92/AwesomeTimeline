@@ -37,13 +37,14 @@ export class TimelineComponent implements OnInit {
 
   ngOnChanges(): void {
     this.generateColumns();
+    this.selectedDateStartOfDay = this.getStartOfDay(this.selectedDate);
   }
 
   private generateColumns(): void {
     if (this.viewMode === 'day') {
       this.viewColumns = Array.from({ length: 24 }, (_, i) => i);
     } else if (this.viewMode === 'week') {
-      this.viewColumns = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      this.viewColumns = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     } else if (this.viewMode === 'month') {
       this.viewColumns = Array.from({ length: 31 }, (_, i) => i + 1);
     }
@@ -61,6 +62,24 @@ export class TimelineComponent implements OnInit {
     return d;
   }
 
+  getWeekDates(): Date[] {
+  const startOfWeek = this.getStartOfWeek(this.selectedDate);
+  const weekDates = [];
+  for (let i = 0; i < 7; i++) {
+    const day = new Date(startOfWeek);
+    day.setDate(startOfWeek.getDate() + i);
+    weekDates.push(day);
+  }
+  return weekDates;
+}
+
+getWeekDayName(date: Date): string {
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: 'long'
+  };
+  return date.toLocaleDateString('en-US', options);
+}
+
   isLastUser(index: number): boolean {
     return index === this.users.length - 1;
   }
@@ -69,6 +88,7 @@ export class TimelineComponent implements OnInit {
     const jsDay = new Date(date).getDay();
     return jsDay === 0 ? 6 : jsDay - 1;
   }
+
   getGroupedItemsForUserAndDay(
     userId: string,
     dayIndex: number
@@ -78,15 +98,12 @@ export class TimelineComponent implements OnInit {
     const itemsForUser = this.items.filter((item) => item.userId === userId);
     let referenceDateForWeek: Date;
     if (this.items && this.items.length > 0) {
-      referenceDateForWeek = new Date(this.items[0].start);
+      referenceDateForWeek = new Date(this.selectedDate);
     } else {
       referenceDateForWeek = new Date();
     }
 
-    const startOfWeek = new Date(this.getStartOfDay(referenceDateForWeek));
-    startOfWeek.setDate(
-      startOfWeek.getDate() - this.getWeekDayIndex(startOfWeek)
-    );
+    const startOfWeek = this.getStartOfWeek(this.selectedDate);
 
     const targetDay = new Date(startOfWeek);
     targetDay.setDate(startOfWeek.getDate() + dayIndex);
@@ -106,6 +123,30 @@ export class TimelineComponent implements OnInit {
       };
     }
     return null;
+  }
+
+  getStartOfWeek(date: Date): Date {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const startOfWeek = new Date(d.setDate(diff));
+    startOfWeek.setHours(0, 0, 0, 0);
+    return startOfWeek;
+  }
+
+getFormattedWeekHeaderDate(date: Date): string {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}.${month}.${year}`;
+}
+
+  getFormattedWeekDay(date: Date): string {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      day: 'numeric',
+    };
+    return date.toLocaleDateString('en-US', options);
   }
 
   getItemsForCell(userId: string, cellIndex: number): TimelineItem[] {

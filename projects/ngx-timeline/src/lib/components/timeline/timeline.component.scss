@@ -56,6 +56,10 @@
   flex: 1;
   position: relative;
   height: 100%;
+  width: 100%;
+}
+.timeline-scroll.no-scroll {
+  overflow-x: hidden;
 }
 
 .timeline-scroll-inner {
@@ -63,6 +67,12 @@
   position: relative;
   flex-direction: column;
   height: 100%;
+}
+
+.timeline-scroll-inner.week-mode {
+  width: 700px;
+  min-width: 700px;
+  flex-shrink: 0;
 }
 
 .timeline-header,
@@ -244,4 +254,54 @@
   left: 0;
   z-index: 1000;
   padding-top: 6px;
+}
+
+.date-cell-day {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.date-cell-week {
+  flex-shrink: 0;
+  width: 100px;
+  height: 100%;
+  border-right: 1px solid #ccc;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.time-cell-header-day {
+  flex-shrink: 0;
+  width: 100px;
+  min-width: 100px;
+  height: 100%;
+  border-right: 1px solid #ccc;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.time-cell-header-week {
+  flex-shrink: 0;
+  width: 100px;
+  min-width: 100px;
+  height: 100%;
+  border-right: 1px solid #ccc;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px 0;
 }
