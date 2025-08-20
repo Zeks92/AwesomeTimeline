@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, OnDestroy } from '@angular/core';
 import {
   TimelineUser,
   TimelineItem,
@@ -29,15 +29,26 @@ export class TimelineComponent implements OnInit {
   originalItemWidth: number = 0;
   originalDraggingItemState: TimelineItem | null = null;
   selectedDateStartOfDay: Date = new Date();
+  currentLinePosition: number = 0;
+  isToday: boolean = false;
+  private timer: any;
 
   ngOnInit(): void {
     this.generateColumns();
     this.selectedDateStartOfDay = this.getStartOfDay(this.selectedDate);
+    this.checkIfToday();
+    this.startTimer();
   }
 
   ngOnChanges(): void {
     this.generateColumns();
     this.selectedDateStartOfDay = this.getStartOfDay(this.selectedDate);
+    this.checkIfToday();
+    this.startTimer();
+  }
+
+  ngOnDestroy(): void {
+    this.stopTimer();
   }
 
   private generateColumns(): void {
@@ -386,4 +397,40 @@ getFormattedWeekHeaderDate(date: Date): string {
     };
     return date.toLocaleDateString('en-US', options);
   }
+
+  private checkIfToday(): void {
+    const today = this.getStartOfDay(new Date());
+    this.isToday = this.selectedDateStartOfDay.getTime() === today.getTime();
+  }
+
+  private startTimer(): void {
+    this.stopTimer();
+    if (this.viewMode === 'day' && this.isToday) {
+      this.timer = setInterval(() => {
+        this.updateCurrentLinePosition();
+      }, 60000);
+      this.updateCurrentLinePosition();
+    }
+  }
+
+  private stopTimer(): void {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  }
+
+  private updateCurrentLinePosition(): void {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const totalMinutes = hours * 60 + minutes;
+    this.currentLinePosition = totalMinutes * this._pixelsPerMinute;
+  }
+
+      isCurrentDay(date: Date): boolean {
+        const today = new Date();
+        return date.getDate() === today.getDate() &&
+               date.getMonth() === today.getMonth() &&
+               date.getFullYear() === today.getFullYear();
+    }
 }

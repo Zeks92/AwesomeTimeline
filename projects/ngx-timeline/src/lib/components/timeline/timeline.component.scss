@@ -134,6 +134,7 @@
 }
 
 .timeline-rows {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: calc(100% - 70px);
@@ -304,4 +305,18 @@
   justify-content: center;
   text-align: center;
   padding: 8px 0;
+}
+
+.current-time-line {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background-color: red;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.current-day-highlight {
+  background-color: #f0f0f0;
 }

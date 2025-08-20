@@ -1,106 +1,115 @@
 <div class="timeline-container">
- <div class="user-column">
-  <ng-container *ngIf="viewMode === 'day'">
-   <div class="user-cell-header date-row-placeholder"></div>
-   <div class="user-cell-header time-row-placeholder">Users</div>
-  </ng-container>
+  <div class="user-column">
+    <ng-container *ngIf="viewMode === 'day'">
+      <div class="user-cell-header date-row-placeholder"></div>
+      <div class="user-cell-header time-row-placeholder">Users</div>
+    </ng-container>
 
-  <ng-container *ngIf="viewMode === 'week'">
-   <div class="user-cell-header date-row-placeholder"></div>
-   <div class="user-cell-header time-row-placeholder">Users</div>
-  </ng-container>
+    <ng-container *ngIf="viewMode === 'week'">
+      <div class="user-cell-header date-row-placeholder"></div>
+      <div class="user-cell-header time-row-placeholder">Users</div>
+    </ng-container>
 
-  <div class="user-cell" *ngFor="let user of users">{{ user.name }}</div>
- </div>
+    <div class="user-cell" *ngFor="let user of users">{{ user.name }}</div>
+  </div>
 
- <div class="timeline-scroll" [ngClass]="{'no-scroll': viewMode === 'week'}">
-  <div class="timeline-scroll-inner" [ngClass]="{'week-mode': viewMode === 'week'}" [style.min-width]="getInnerWidth()">
+  <div class="timeline-scroll" [ngClass]="{'no-scroll': viewMode === 'week'}">
+    <div class="timeline-scroll-inner" [ngClass]="{'week-mode': viewMode === 'week'}" [style.min-width]="getInnerWidth()">
+      
       <ng-container *ngIf="viewMode === 'day'">
-    <div class="timeline-header-date-row">
-     <div class="date-cell" [style.width]="getInnerWidth()">
-      {{ getFormattedDate(selectedDate) }}
-     </div>
-    </div>
-    <div class="timeline-header-time-row">
-     <div class="time-cell-header" *ngFor="let column of viewColumns">
-      {{ column }}:00
-     </div>
-    </div>
-   </ng-container>
-
-         <ng-container *ngIf="viewMode === 'week'">
-    <div class="timeline-header-date-row">
-     <div class="date-cell-week" *ngFor="let day of getWeekDates()">
-      {{ getFormattedWeekHeaderDate(day) }}
-     </div>
-    </div>
-    <div class="timeline-header-time-row">
-     <div class="time-cell-header-week" *ngFor="let day of getWeekDates()">
-      {{ getWeekDayName(day) }}
-     </div>
-    </div>
-   </ng-container>
-
-   <div class="timeline-rows">
-    <div
-     class="timeline-row"
-     *ngFor="let user of users; let userIndex = index"
-     [style.z-index]="getTimelineRowZIndex(user.id)"
-    >
-     <div class="time-cell-grid" *ngFor="let column of viewColumns"></div>
-
-          <ng-container *ngIf="viewMode === 'day'">
-      <ng-container *ngFor="let item of getItemsForUser(user.id)">
-       <div
-        class="timeline-item-wrapper"
-        (mouseenter)="activeTooltipItem = item; activeUserWithTooltip = item.userId"
-        (mouseleave)="activeTooltipItem = null; activeUserWithTooltip = null"
-        [style.left.px]="getItemLeftOffset(item)"
-        [style.width.px]="getItemWidth(item)"
-       >
-        <div class="timeline-item" [style.background]="item.color || '#2196f3'">
-         {{ item.title }}
-         <div class="resize-handle left" (mousedown)="onDragStart($event, item, 'left')"></div>
-         <div class="resize-handle right" (mousedown)="onDragStart($event, item, 'right')"></div>
+        <div class="timeline-header-date-row">
+          <div class="date-cell" [style.width]="getInnerWidth()">
+            {{ getFormattedDate(selectedDate) }}
+          </div>
         </div>
-        <ngx-timeline-tooltip
-         *ngIf="activeTooltipItem === item"
-         class="tooltip-floating"
-         [class.tooltip-top]="isLastUser(userIndex)"
-         [items]="[item]"
-        ></ngx-timeline-tooltip>
-       </div>
+        <div class="timeline-header-time-row">
+          <div class="time-cell-header" *ngFor="let column of viewColumns">
+            {{ column }}:00
+          </div>
+        </div>
       </ng-container>
-     </ng-container>
+
+      <ng-container *ngIf="viewMode === 'week'">
+        <div class="timeline-header-date-row">
+          <div class="date-cell-week" *ngFor="let day of getWeekDates()" [ngClass]="{'current-day-highlight': isCurrentDay(day)}">
+            {{ getFormattedWeekHeaderDate(day) }}
+          </div>
+        </div>
+        <div class="timeline-header-time-row">
+          <div class="time-cell-header-week" *ngFor="let day of getWeekDates()" [ngClass]="{'current-day-highlight': isCurrentDay(day)}">
+            {{ getWeekDayName(day) }}
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="timeline-rows">
+        <div class="current-time-line" [style.left.px]="currentLinePosition" *ngIf="isToday && viewMode==='day'"></div>
+        
+        <div
+          class="timeline-row"
+          *ngFor="let user of users; let userIndex = index"
+          [style.z-index]="getTimelineRowZIndex(user.id)"
+        >
+          <ng-container *ngIf="viewMode === 'day'">
+            <div class="time-cell-grid" *ngFor="let column of viewColumns"></div>
+          </ng-container>
 
           <ng-container *ngIf="viewMode === 'week'">
-      <ng-container *ngFor="let column of viewColumns; let h = index">
-       <ng-container
-        *ngIf="getGroupedItemsForUserAndDay(user.id, h) as groupedItem"
-       >
-        <div
-         class="timeline-item-wrapper"
-         [style.left.px]="getWeekItemLeftOffset(h)"
-         [style.width.px]="100"
-         (mouseenter)="activeGroupTooltipId = groupedItem.id; activeUserWithTooltip = user.id"
-         (mouseleave)="activeGroupTooltipId = null; activeUserWithTooltip = null"
-        >
-         <div class="timeline-item" [style.background]="groupedItem.items[0].color || '#2196f3'">
-          {{ groupedItem.count }}
-          {{ groupedItem.count === 1 ? "Meeting" : "Meetings" }}
-         </div>
-         <ngx-timeline-tooltip
-          *ngIf="activeGroupTooltipId === groupedItem.id"
-          class="tooltip-floating"
-          [class.tooltip-top]="isLastUser(userIndex)"
-          [items]="groupedItem.items"
-         ></ngx-timeline-tooltip>
+            <div class="time-cell-grid" *ngFor="let day of getWeekDates()" [ngClass]="{'current-day-highlight': isCurrentDay(day)}" ></div>
+          </ng-container>
+
+          <ng-container *ngIf="viewMode === 'day'">
+            <ng-container *ngFor="let item of getItemsForUser(user.id)">
+              <div
+                class="timeline-item-wrapper"
+                (mouseenter)="activeTooltipItem = item; activeUserWithTooltip = item.userId"
+                (mouseleave)="activeTooltipItem = null; activeUserWithTooltip = null"
+                [style.left.px]="getItemLeftOffset(item)"
+                [style.width.px]="getItemWidth(item)"
+              >
+                <div class="timeline-item" [style.background]="item.color || '#2196f3'">
+                  {{ item.title }}
+                  <div class="resize-handle left" (mousedown)="onDragStart($event, item, 'left')"></div>
+                  <div class="resize-handle right" (mousedown)="onDragStart($event, item, 'right')"></div>
+                </div>
+                <ngx-timeline-tooltip
+                  *ngIf="activeTooltipItem === item"
+                  class="tooltip-floating"
+                  [class.tooltip-top]="isLastUser(userIndex)"
+                  [items]="[item]"
+                ></ngx-timeline-tooltip>
+              </div>
+            </ng-container>
+          </ng-container>
+
+          <ng-container *ngIf="viewMode === 'week'">
+            <ng-container *ngFor="let column of viewColumns; let h = index">
+              <ng-container
+                *ngIf="getGroupedItemsForUserAndDay(user.id, h) as groupedItem"
+              >
+                <div
+                  class="timeline-item-wrapper"
+                  [style.left.px]="getWeekItemLeftOffset(h)"
+                  [style.width.px]="100"
+                  (mouseenter)="activeGroupTooltipId = groupedItem.id; activeUserWithTooltip = user.id"
+                  (mouseleave)="activeGroupTooltipId = null; activeUserWithTooltip = null"
+                >
+                  <div class="timeline-item" [style.background]="groupedItem.items[0].color || '#2196f3'">
+                    {{ groupedItem.count }}
+                    {{ groupedItem.count === 1 ? "Meeting" : "Meetings" }}
+                  </div>
+                  <ngx-timeline-tooltip
+                    *ngIf="activeGroupTooltipId === groupedItem.id"
+                    class="tooltip-floating"
+                    [class.tooltip-top]="isLastUser(userIndex)"
+                    [items]="groupedItem.items"
+                  ></ngx-timeline-tooltip>
+                </div>
+              </ng-container>
+            </ng-container>
+          </ng-container>
         </div>
-       </ng-container>
-      </ng-container>
-     </ng-container>
+      </div>
     </div>
-   </div>
   </div>
- </div>
 </div>
